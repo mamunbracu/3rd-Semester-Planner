@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mamun · Semester 2 Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07080f;--card:#0f1020;--border:#1e2040;--edu541:#f97316;--crs419:#22d3ee;--edu426:#a78bfa;--edu545:#4ade80;--text:#f0f0ff;--muted:#555580;--dim:#13142a;--red:#ff4d6d}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.wrap{max-width:920px;margin:0 auto;padding:0 14px 80px}
+
+/* ALERT */
+#alert-banner{display:none;position:sticky;top:0;z-index:200;background:#1a0a0a;border-bottom:2px solid var(--red)}
+.al-inner{max-width:920px;margin:0 auto;padding:10px 14px}
+.al-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--red);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.al-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.2);border-radius:8px;padding:8px 12px;margin-bottom:4px}
+.al-name{font-size:13px;font-weight:700;color:#fff;flex:1}
+.al-sub{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.al-cd{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;color:var(--red);white-space:nowrap;background:rgba(255,77,109,.15);padding:4px 10px;border-radius:20px}
+
+/* HEADER */
+.hdr{padding:22px 0 16px;text-align:center}
+.hdr-eye{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.hdr h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,9vw,72px);line-height:1;letter-spacing:3px;color:#fff;margin-bottom:4px}
+.hdr h1 em{font-style:normal;background:linear-gradient(90deg,#f97316,#22d3ee,#a78bfa,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* CLOCK */
+.clock{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.live{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);animation:pulse 1.4s ease infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.ctime{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,5vw,40px);letter-spacing:2px;color:#fff;line-height:1}
+.cdate{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:right;line-height:2;text-transform:uppercase}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;display:block;margin-bottom:3px}
+.stat-l{font-size:8px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+/* SUBJECT FILTER */
+.subj-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.sbtn{display:flex;align-items:center;gap:6px;border:2px solid;border-radius:10px;padding:7px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;cursor:pointer;transition:all .2s;user-select:none}
+.sbtn.off{opacity:.28;filter:grayscale(.6)}
+
+/* TABS */
+.type-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.type-tabs::-webkit-scrollbar{display:none}
+.ttab{flex-shrink:0;padding:9px 15px;border:none;background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all .15s;white-space:nowrap;font-weight:600}
+.ttab.active{background:var(--dim);color:var(--text)}
+
+/* CARDS */
+.list{display:flex;flex-direction:column;gap:10px}
+.ecard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 16px 14px 20px;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.ecard:hover{transform:translateX(4px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.ecard.past{opacity:.3}
+.ecard.near{border-color:rgba(255,77,109,.4);box-shadow:0 0 16px rgba(255,77,109,.1)}
+.bar{position:absolute;left:0;top:0;bottom:0;width:5px}
+.ct{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.ctitle{font-size:14px;font-weight:700;color:#fff;line-height:1.4;flex:1}
+.badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:4px 9px;border-radius:20px;border:1px solid;white-space:nowrap;font-weight:700}
+.tbadge{font-size:8px;padding:4px 9px;border-radius:20px;border:1px solid;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap}
+.due-box{display:inline-flex;align-items:center;gap:10px;border:2px solid;border-radius:10px;padding:9px 14px;margin:8px 0 10px}
+.due-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.due-date{font-size:15px;font-weight:800}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid;letter-spacing:1px;font-weight:700}
+.p-fire{color:var(--red);border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.12)}
+.p-warn{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.12)}
+.p-ok{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.12)}
+.p-past{color:var(--muted);border-color:var(--border);background:transparent}
+.note{font-size:11px;color:#fbbf24;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:8px 12px;margin-bottom:8px;line-height:1.6}
+.meta{display:flex;flex-wrap:wrap;gap:5px 14px;margin-bottom:6px}
+.mtag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.mtag.hi{font-weight:700}
+
+/* WEEK */
+.wgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.wday{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 3px;text-align:center;min-height:66px}
+.wday.today{border-color:#f97316}
+.wdn{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.wdd{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--muted);margin-bottom:3px}
+.wday.today .wdd{color:#f97316}
+.wdot{width:6px;height:6px;border-radius:50%;margin:2px auto}
+
+/* SETTINGS */
+.sp{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.sp h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#fff;margin-bottom:2px}
+.sp-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.ss{margin-bottom:22px}
+.ss-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.ns{display:flex;align-items:center;justify-content:space-between;background:var(--dim);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;flex-wrap:wrap;gap:10px}
+.ns-l{display:flex;align-items:center;gap:10px}
+.ns-icon{font-size:22px}
+.ns-label{font-size:13px;font-weight:700;color:#fff}
+.ns-desc{font-size:10px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.nbtn{padding:9px 16px;border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;white-space:nowrap}
+.btn-en{background:var(--red);color:#fff}
+.btn-granted{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);cursor:default}
+.btn-denied{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.3);cursor:default}
+.btn-cal{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+
+.tr{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.tr:last-child{border-bottom:none}
+.tr-l{flex:1}
+.tr-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.tr-desc{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.tog{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{position:absolute;inset:0;background:var(--border);border-radius:12px;transition:.3s}
+.tog input:checked~.tog-track{background:#4ade80}
+.tog-thumb{position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.tog input:checked~.tog-thumb{left:23px}
+
+.lim{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:16px}
+.lim-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:#fbbf24;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.lim p{font-size:12px;color:#c0a050;line-height:1.7;margin-bottom:8px}
+.lim p:last-child{margin-bottom:0}
+.lim strong{color:#fbbf24}
+
+.log-box{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.log-item{display:flex;align-items:flex-start;gap:10px;background:var(--dim);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:10px}
+.log-time{color:var(--muted);white-space:nowrap;flex-shrink:0}
+.log-msg{color:var(--text);line-height:1.5}
+.log-empty{text-align:center;padding:18px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px}
+
+.test-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.test-btn{padding:8px 14px;border:1px solid var(--border);background:var(--dim);color:var(--text);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:1px;font-weight:600}
+.test-btn:hover{border-color:var(--red);color:var(--red)}
+.clr-btn{padding:8px 16px;border:1px solid rgba(255,77,109,.3);background:rgba(255,77,109,.08);color:var(--red);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;font-weight:600;letter-spacing:1px;margin-top:10px;display:inline-block}
+.clr-btn:hover{background:rgba(255,77,109,.15)}
+
+.view{display:none}.view.active{display:block}
+.slabel{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.empty{text-align:center;padding:40px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px}
+</style>
+</head>
+<body>
+
+<div id="alert-banner">
+  <div class="al-inner">
+    <div class="al-title">🚨 URGENT — Due within 6 days</div>
+    <div id="alert-items"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-eye">Alphacrucis University College · ID: 25002161 · MD Mamun Uddin · Semester 2, 2026</div>
+    <h1>MD MAMUN <em>PLANNER</em></h1>
+  </div>
+
+  <div class="clock">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live"></div>
+      <div class="ctime" id="ct">--:--:--</div>
+    </div>
+    <div class="cdate" id="cd"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-n" id="sU" style="color:var(--red)">-</span><span class="stat-l">🔥 Due &lt;6 Days</span></div>
+    <div class="stat"><span class="stat-n" id="sR" style="color:#22d3ee">-</span><span class="stat-l">📋 Remaining</span></div>
+    <div class="stat"><span class="stat-n" id="sC" style="color:#4ade80">-</span><span class="stat-l">✅ Done</span></div>
+    <div class="stat"><span class="stat-n" id="sN" style="color:#a78bfa">-</span><span class="stat-l">📅 Days to Next</span></div>
+  </div>
+
+  <div class="subj-row" id="subj-row"></div>
+
+  <div class="type-tabs">
+    <button class="ttab active" onclick="switchType('all',this)">📋 All</button>
+    <button class="ttab" onclick="switchType('forum',this)">💬 Forum Posts</button>
+    <button class="ttab" onclick="switchType('assignment',this)">📝 Assignments</button>
+    <button class="ttab" onclick="switchType('week',this)">🗓 This Week</button>
+    <button class="ttab" onclick="switchType('soon',this)">⚡ Next 30 Days</button>
+    <button class="ttab" onclick="switchType('settings',this)">🔔 Notifications</button>
+  </div>
+
+  <div class="view active" id="view-all"><div class="slabel">// All Tasks — Sorted by Due Date</div><div class="list" id="list-all"></div></div>
+  <div class="view" id="view-forum"><div class="slabel">// Forum Posts Only</div><div class="list" id="list-forum"></div></div>
+  <div class="view" id="view-assignment"><div class="slabel">// Assignments Only</div><div class="list" id="list-assignment"></div></div>
+  <div class="view" id="view-week"><div class="slabel">// This Week</div><div class="wgrid" id="wgrid"></div><div class="list" id="list-week"></div></div>
+  <div class="view" id="view-soon"><div class="slabel">// Next 30 Days</div><div class="list" id="list-soon"></div></div>
+
+  <!-- NOTIFICATIONS VIEW -->
+  <div class="view" id="view-settings">
+    <div class="sp">
+      <h2>🔔 Notification Settings</h2>
+      <div class="sp-sub">// Browser Reminder System · md.mamun.uddin.fv@gmail.com</div>
+
+      <!-- Permission -->
+      <div class="ss">
+        <div class="ss-title">Browser Permission Status</div>
+        <div class="ns">
+          <div class="ns-l">
+            <div class="ns-icon" id="perm-icon">🔕</div>
+            <div>
+              <div class="ns-label" id="perm-label">Notifications Not Enabled</div>
+              <div class="ns-desc" id="perm-desc">Click to allow browser notifications</div>
+            </div>
+          </div>
+          <button class="nbtn btn-en" id="perm-btn" onclick="requestPermission()">Enable Notifications</button>
+        </div>
+      </div>
+
+      <!-- Reminder toggles -->
+      <div class="ss">
+        <div class="ss-title">Reminder Schedule — Toggle On/Off</div>
+        <div class="tr">
+          <div class="tr-l"><div class="tr-title">🔔 All Reminders</div><div class="tr-desc">Master switch — turn all reminders on or off</div></div>
+          <label class="tog"><input type="checkbox" id="tog-master" checked onchange="saveSettings()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+        <div class="tr">
+          <div class="tr-l"><div class="tr-title">📅 7 Days Before</div><div class="tr-desc">Early heads-up — start planning</div></div>
+          <label class="tog"><input type="checkbox" id="tog-7" checked onchange="saveSettings()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+        <div class="tr">
+          <div class="tr-l"><div class="tr-title">⚠️ 3 Days Before</div><div class="tr-desc">Time to wrap up and review</div></div>
+          <label class="tog"><input type="checkbox" id="tog-3" checked onchange="saveSettings()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+        <div class="tr">
+          <div class="tr-l"><div class="tr-title">🔥 1 Day Before</div><div class="tr-desc">Final push — due tomorrow</div></div>
+          <label class="tog"><input type="checkbox" id="tog-1" checked onchange="saveSettings()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+        <div class="tr">
+          <div class="tr-l"><div class="tr-title">🚨 On Due Date</div><div class="tr-desc">Same-day alert at time of check</div></div>
+          <label class="tog"><input type="checkbox" id="tog-0" checked onchange="saveSettings()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+      </div>
+
+      <!-- Email / Calendar export -->
+      <div class="ss">
+        <div class="ss-title">📧 Email Reminders → md.mamun.uddin.fv@gmail.com</div>
+        <div class="ns" style="margin-bottom:0">
+          <div class="ns-l">
+            <div class="ns-icon">📬</div>
+            <div>
+              <div class="ns-label">Export to Google Calendar</div>
+              <div class="ns-desc">Downloads .ics with 7d, 3d, 1d email alerts to your Gmail — works even when device is off</div>
+            </div>
+          </div>
+          <button class="nbtn btn-cal" onclick="exportToCalendar()">📅 Download .ics</button>
+        </div>
+      </div>
+
+      <!-- Test notifications -->
+      <div class="ss">
+        <div class="ss-title">Test Notifications</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px">Enable notifications above first, then test each reminder type:</div>
+        <div class="test-row">
+          <button class="test-btn" onclick="testNotif('7')">📅 Test 7-Day</button>
+          <button class="test-btn" onclick="testNotif('3')">⚠️ Test 3-Day</button>
+          <button class="test-btn" onclick="testNotif('1')">🔥 Test 1-Day</button>
+          <button class="test-btn" onclick="testNotif('0')">🚨 Test Due Today</button>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="ss">
+        <div class="ss-title">Notification Log</div>
+        <div class="log-box" id="notif-log"><div class="log-empty">NO NOTIFICATIONS SENT YET</div></div>
+        <div class="clr-btn" onclick="clearLog()" style="cursor:pointer">🗑 Clear Log &amp; Reset Sent Status</div>
+      </div>
+
+      <!-- Limitations -->
+      <div class="lim">
+        <div class="lim-title">⚠️ Important Limitations — Please Read</div>
+        <p><strong>This tab must stay open</strong> for browser reminders to work. The system checks every 60 seconds — closing the tab stops all reminders immediately.</p>
+        <p><strong>For reliable reminders</strong> even when your browser or device is off, use the <strong>📅 Download .ics</strong> button above. Import it into Google Calendar and it will email <strong>md.mamun.uddin.fv@gmail.com</strong> at 7 days, 3 days, 1 day, and 2 hours before every deadline — no page needs to be open.</p>
+        <p><strong>No duplicate notifications</strong> — sent reminders are stored in your browser's localStorage. Even after refreshing the page, you won't receive the same reminder twice.</p>
+        <p><strong>True background push</strong> (notifications when browser is fully closed) requires a server with Firebase Cloud Messaging or web-push — not possible in a standalone HTML file.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const C={edu541:'#f97316',crs419:'#22d3ee',edu426:'#a78bfa',edu545:'#4ade80'};
+const LBL={edu541:'EDU541',crs419:'CRS419',edu426:'EDU426',edu545:'EDU545'};
+const NM={edu541:'Differentiated Curriculum',crs419:'Computing Technology',edu426:'Aboriginal Perspectives',edu545:'Educational Policy'};
+
+const DATA=[
+  // EDU541
+  {course:'edu541',type:'assignment',title:'Assessment 2: Case Study Analysis (Intervention Plan)',due:new Date('2026-10-25T23:55:00+11:00'),weight:'20%',detail:'1500 words',icon:'📝'},
+  {course:'edu541',type:'assignment',title:'Assessment 3: Lesson Plan Sequence',due:new Date('2026-11-15T23:55:00+11:00'),weight:'30%',detail:'2000 words equiv.',icon:'📐'},
+  {course:'edu541',type:'assignment',title:'Assessment 1: Research & Reflection Journal',due:new Date('2026-11-29T23:55:00+11:00'),weight:'20%',detail:'3000 words',icon:'📓'},
+  {course:'edu541',type:'assignment',title:'Assessment 4: Assessment Design and Feedback',due:new Date('2026-11-29T23:55:00+11:00'),weight:'30%',detail:'2000 words equiv.',icon:'🎯'},
+  // CRS419
+  {course:'crs419',type:'forum',title:'Forum Posts — Week 2',due:new Date('2026-08-09T23:55:00+10:00'),weight:'25%',detail:'Forum Post',icon:'💬'},
+  {course:'crs419',type:'forum',title:'Forum Posts — Week 5',due:new Date('2026-10-11T23:55:00+11:00'),weight:'25%',detail:'Forum Post',icon:'💬'},
+  {course:'crs419',type:'forum',title:'Forum Posts — Week 7',due:new Date('2026-10-25T23:55:00+11:00'),weight:'25%',detail:'Forum Post',icon:'💬'},
+  {course:'crs419',type:'assignment',title:'Assessment 2: Computing Technology Unit of Work',due:new Date('2026-11-01T23:55:00+11:00'),weight:'35%',detail:'Unit of Work',icon:'💻'},
+  {course:'crs419',type:'forum',title:'Forum Posts — Week 11',due:new Date('2026-11-22T23:55:00+11:00'),weight:'25%',detail:'Forum Post',icon:'💬'},
+  {course:'crs419',type:'assignment',title:'Assessment 3: Analysing & Evaluating a Unit of Work',due:new Date('2026-11-29T23:55:00+11:00'),weight:'40%',detail:'Final Assignment',icon:'🔍',note:'⚠️ Complete Student Feedback Survey before submitting.'},
+  // EDU426
+  {course:'edu426',type:'forum',title:'Forum Post — Week 3',due:new Date('2026-08-16T23:55:00+10:00'),weight:'20%',detail:'Critical Reflection',icon:'✍️'},
+  {course:'edu426',type:'forum',title:'Forum Post — Week 4',due:new Date('2026-08-23T23:55:00+10:00'),weight:'20%',detail:'Critical Reflection',icon:'✍️'},
+  {course:'edu426',type:'forum',title:'Forum Post — Week 5',due:new Date('2026-10-11T23:55:00+11:00'),weight:'20%',detail:'Critical Reflection',icon:'✍️'},
+  {course:'edu426',type:'forum',title:'Forum Post — Week 7',due:new Date('2026-10-25T23:55:00+11:00'),weight:'20%',detail:'Critical Reflection',icon:'✍️'},
+  {course:'edu426',type:'forum',title:'Forum Post — Week 8',due:new Date('2026-11-01T23:55:00+11:00'),weight:'20%',detail:'Critical Reflection',icon:'✍️'},
+  {course:'edu426',type:'assignment',title:'Assessment 2: Creative Project — Professional Learning Workshop',due:new Date('2026-11-08T23:55:00+11:00'),weight:'40%',detail:'Workshop',icon:'🎨'},
+  {course:'edu426',type:'assignment',title:'Assessment 3: Individual Case Study Analysis',due:new Date('2026-11-22T23:55:00+11:00'),weight:'40%',detail:'Case Study',icon:'🔬',note:'⚠️ Complete Student Feedback Survey before submitting.'},
+  {course:'edu426',type:'forum',title:'Forum Posts — Week 11 + Collated Document',due:new Date('2026-11-29T23:55:00+11:00'),weight:'20%',detail:'Collated doc',icon:'📎'},
+  // EDU545
+  {course:'edu545',type:'forum',title:'Forum Posts — Week 2',due:new Date('2026-08-09T23:55:00+10:00'),weight:'10%',detail:'Forum Post',icon:'💬'},
+  {course:'edu545',type:'forum',title:'Forum Posts — Week 4',due:new Date('2026-08-23T23:55:00+10:00'),weight:'10%',detail:'Forum Post',icon:'💬'},
+  {course:'edu545',type:'forum',title:'Forum Posts — Week 6',due:new Date('2026-09-07T23:55:00+10:00'),weight:'10%',detail:'Forum Post',icon:'💬'},
+  {course:'edu545',type:'assignment',title:'Assessment 2: Personal Reflection',due:new Date('2026-10-11T23:55:00+11:00'),weight:'10%',detail:'1500 words',icon:'🪞'},
+  {course:'edu545',type:'forum',title:'Forum Posts — Week 8',due:new Date('2026-10-25T23:55:00+11:00'),weight:'10%',detail:'Forum Post',icon:'💬'},
+  {course:'edu545',type:'forum',title:'Forum Posts — Week 10',due:new Date('2026-11-08T23:55:00+11:00'),weight:'10%',detail:'Forum Post',icon:'💬'},
+  {course:'edu545',type:'assignment',title:'Assessment 3: Critical Reflection Paper',due:new Date('2026-11-15T23:55:00+11:00'),weight:'30%',detail:'1800 words',icon:'📜'},
+  {course:'edu545',type:'forum',title:'Assessment 1: Collated Forum Posts',due:new Date('2026-11-29T23:55:00+11:00'),weight:'10%',detail:'Collated',icon:'📎'},
+  {course:'edu545',type:'assignment',title:'Assessment 4: Policy Development',due:new Date('2026-11-29T23:55:00+11:00'),weight:'50%',detail:'3000 words',icon:'🏛️',note:'⚠️ Complete Student Feedback Survey before submitting.'},
+].sort((a,b)=>a.due-b.due);
+
+// ── STATE ──
+const hidden=new Set();
+let cfg={master:true,r7:true,r3:true,r1:true,r0:true};
+let sentLog=[];
+
+function loadState(){
+  try{
+    const s=localStorage.getItem('mamun_cfg'); if(s) cfg={...cfg,...JSON.parse(s)};
+    const l=localStorage.getItem('mamun_log'); if(l) sentLog=JSON.parse(l);
+  }catch(e){}
+  document.getElementById('tog-master').checked=cfg.master;
+  document.getElementById('tog-7').checked=cfg.r7;
+  document.getElementById('tog-3').checked=cfg.r3;
+  document.getElementById('tog-1').checked=cfg.r1;
+  document.getElementById('tog-0').checked=cfg.r0;
+}
+function saveSettings(){
+  cfg.master=document.getElementById('tog-master').checked;
+  cfg.r7=document.getElementById('tog-7').checked;
+  cfg.r3=document.getElementById('tog-3').checked;
+  cfg.r1=document.getElementById('tog-1').checked;
+  cfg.r0=document.getElementById('tog-0').checked;
+  localStorage.setItem('mamun_cfg',JSON.stringify(cfg));
+}
+function saveLog(){ localStorage.setItem('mamun_log',JSON.stringify(sentLog)); }
+
+function clearLog(){
+  if(!confirm('Clear all notification history? You may receive duplicate reminders.')) return;
+  sentLog=[];saveLog();renderLog();
+}
+
+// ── PERMISSION ──
+function updatePermUI(){
+  const p=('Notification' in window)?Notification.permission:'unsupported';
+  const icon=document.getElementById('perm-icon');
+  const lbl=document.getElementById('perm-label');
+  const desc=document.getElementById('perm-desc');
+  const btn=document.getElementById('perm-btn');
+  if(p==='granted'){
+    icon.textContent='🔔';lbl.textContent='Notifications Enabled ✅';
+    desc.textContent='Browser will show reminders while this tab is open';
+    btn.textContent='✅ Enabled';btn.className='nbtn btn-granted';
+  } else if(p==='denied'){
+    icon.textContent='🚫';lbl.textContent='Notifications Blocked';
+    desc.textContent='Go to browser Settings → Notifications to unblock this page';
+    btn.textContent='❌ Blocked — Fix in Browser Settings';btn.className='nbtn btn-denied';
+  } else {
+    icon.textContent='🔕';lbl.textContent='Notifications Not Enabled';
+    desc.textContent='Click the button to allow browser notifications';
+    btn.textContent='Enable Notifications';btn.className='nbtn btn-en';
+  }
+}
+
+async function requestPermission(){
+  if(!('Notification' in window)){alert('Your browser does not support notifications.');return;}
+  if(Notification.permission==='denied'){alert('Notifications are blocked.\n\nTo fix:\n1. Click the 🔒 lock icon in your browser address bar\n2. Set Notifications to "Allow"\n3. Refresh the page');return;}
+  const r=await Notification.requestPermission();
+  updatePermUI();
+  if(r==='granted'){
+    addLog('✅ Browser notification permission granted');
+    new Notification('🎓 Mamun\'s Planner Active',{body:'Reminders are ON! You\'ll be notified before each assessment deadline.'});
+  }
+}
+
+// ── NOTIFICATIONS ──
+function nKey(e,d){ return `sent_${e.course}_${e.title.substring(0,15).replace(/\s/g,'')}_${e.due.toISOString().split('T')[0]}_${d}`; }
+function alreadySent(k){ return sentLog.some(l=>l.key===k); }
+function markSent(k,msg){
+  sentLog.unshift({key:k,msg,time:new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'})});
+  if(sentLog.length>120) sentLog=sentLog.slice(0,120);
+  saveLog();renderLog();
+}
+function addLog(msg){
+  sentLog.unshift({key:'log_'+Date.now(),msg,time:new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'})});
+  saveLog();renderLog();
+}
+function renderLog(){
+  const el=document.getElementById('notif-log');
+  if(!sentLog.length){el.innerHTML='<div class="log-empty">NO NOTIFICATIONS SENT YET</div>';return;}
+  el.innerHTML=sentLog.slice(0,50).map(l=>`<div class="log-item"><div class="log-time">${l.time}</div><div class="log-msg">${l.msg}</div></div>`).join('');
+}
+
+function fireNotif(title,body,tag){
+  if(!('Notification' in window)||Notification.permission!=='granted') return false;
+  try{ new Notification(title,{body,tag,requireInteraction:false}); return true; } catch(e){ return false; }
+}
+
+function testNotif(d){
+  if(Notification.permission!=='granted'){alert('Please enable notifications first by clicking the "Enable Notifications" button above.');return;}
+  const map={
+    '7':['📅 7-Day Reminder','EDU541 · Assessment 2: Case Study Analysis is due in 7 days.'],
+    '3':['⚠️ 3-Day Reminder','CRS419 · Forum Posts — Week 7 is due in 3 days. Start now!'],
+    '1':['🔥 Due Tomorrow!','EDU426 · Forum Post — Week 8 is due TOMORROW!'],
+    '0':['🚨 DUE TODAY!','EDU545 · Assessment 4: Policy Development is DUE TODAY!']
+  };
+  const [t,b]=map[d];
+  if(fireNotif(t,b,'test_'+d)) addLog(`🧪 Test fired: ${t}`);
+  else addLog('❌ Test failed — check browser notification permission');
+}
+
+function checkReminders(){
+  if(!cfg.master||!('Notification' in window)||Notification.permission!=='granted') return;
+  const now=Date.now();
+  DATA.forEach(e=>{
+    if(e.due<=now) return;
+    const days=(e.due-now)/86400000;
+    const short=`${LBL[e.course]} · ${e.title.length>45?e.title.substring(0,43)+'…':e.title}`;
+    const checks=[
+      {enabled:cfg.r7,min:6.5,max:7.5,d:7,t:'📅 7 Days Left',b:`${short} is due in 7 days. Plan ahead!`},
+      {enabled:cfg.r3,min:2.5,max:3.5,d:3,t:'⚠️ 3 Days Left',b:`${short} is due in 3 days. Wrap it up!`},
+      {enabled:cfg.r1,min:0.5,max:1.5,d:1,t:'🔥 Due Tomorrow!',b:`${short} is due TOMORROW. Final push!`},
+      {enabled:cfg.r0,min:0,  max:0.5,d:0,t:'🚨 DUE TODAY!',  b:`${short} is DUE TODAY by ${fT(e.due)}!`},
+    ];
+    checks.forEach(ck=>{
+      if(!ck.enabled||days<ck.min||days>ck.max) return;
+      const k=nKey(e,ck.d);
+      if(alreadySent(k)) return;
+      if(fireNotif(ck.t,ck.b,k)) markSent(k,`${ck.t}: ${short}`);
+    });
+  });
+}
+
+// ── CALENDAR EXPORT ──
+function exportToCalendar(){
+  const future=DATA.filter(e=>e.due>Date.now());
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mamun Planner//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  future.forEach(e=>{
+    const uid=`mamun_${e.course}_${e.due.getTime()}@planner`;
+    const dt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+    lines.push('BEGIN:VEVENT',
+      `UID:${uid}`,`DTSTART:${dt(new Date(e.due.getTime()-3600000))}`,`DTEND:${dt(e.due)}`,
+      `SUMMARY:${LBL[e.course]} – ${e.title}`,
+      `DESCRIPTION:Weight: ${e.weight}\\nDetail: ${e.detail}\\nSubject: ${NM[e.course]}`,
+      `CATEGORIES:${e.type==='forum'?'FORUM POST':'ASSIGNMENT'}`,
+      'BEGIN:VALARM','TRIGGER:-P7D','ACTION:EMAIL',`ATTENDEE:mailto:md.mamun.uddin.fv@gmail.com`,`SUMMARY:7-Day Reminder: ${LBL[e.course]}`,`DESCRIPTION:${e.title} is due in 7 days.`,'END:VALARM',
+      'BEGIN:VALARM','TRIGGER:-P3D','ACTION:EMAIL',`ATTENDEE:mailto:md.mamun.uddin.fv@gmail.com`,`SUMMARY:3-Day Reminder: ${LBL[e.course]}`,`DESCRIPTION:${e.title} is due in 3 days.`,'END:VALARM',
+      'BEGIN:VALARM','TRIGGER:-P1D','ACTION:EMAIL',`ATTENDEE:mailto:md.mamun.uddin.fv@gmail.com`,`SUMMARY:Due Tomorrow: ${LBL[e.course]}`,`DESCRIPTION:${e.title} is due TOMORROW!`,'END:VALARM',
+      'BEGIN:VALARM','TRIGGER:-PT2H','ACTION:DISPLAY',`DESCRIPTION:DUE TODAY: ${e.title}`,'END:VALARM',
+      'END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Mamun_Sem2_Assessments.ics';a.click();
+  addLog(`📅 .ics exported — ${future.length} assessments with email reminders to md.mamun.uddin.fv@gmail.com`);
+  setTimeout(()=>alert('✅ Calendar file downloaded!\n\nTo get email reminders at md.mamun.uddin.fv@gmail.com:\n\n1. Open Google Calendar (calendar.google.com)\n2. Click the ⚙️ Settings gear\n3. Go to "Import & Export"\n4. Import "Mamun_Sem2_Assessments.ics"\n\nGoogle Calendar will then email you 7 days, 3 days, and 1 day before each deadline — even when your device is off!'),100);
+}
+
+// ── SUBJECT FILTER ──
+document.getElementById('subj-row').innerHTML=Object.entries(LBL).map(([k,l])=>
+  `<div class="sbtn" id="sb-${k}" style="border-color:${C[k]};color:${C[k]};background:${C[k]}18" onclick="togSubj('${k}')">
+    <span style="width:8px;height:8px;border-radius:50%;background:${C[k]};display:inline-block;flex-shrink:0"></span>${l} · ${NM[k]}</div>`
+).join('');
+
+function togSubj(k){hidden.has(k)?hidden.delete(k):hidden.add(k);document.getElementById('sb-'+k).classList.toggle('off');render();}
+function vis(e){return !hidden.has(e.course)}
+function fD(d){return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'Australia/Sydney'})}
+function fT(d){return d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Australia/Sydney'})}
+function isPast(d){return d<Date.now()}
+
+function cdObj(due){
+  const ms=due-Date.now();
+  if(ms<0)return{t:'SUBMITTED ✓',c:'p-past',days:-1};
+  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
+  if(d===0)return{t:`⚡ ${h}h ${m}m LEFT`,c:'p-fire',days:0};
+  if(d<=6) return{t:`🔥 ${d}d ${h}h LEFT`,c:'p-fire',days:d};
+  if(d<=21)return{t:`⚠️ ${d} DAYS LEFT`,c:'p-warn',days:d};
+  return{t:`✅ ${d} DAYS LEFT`,c:'p-ok',days:d};
+}
+
+function tLabel(t){
+  return t==='forum'
+    ?{txt:'💬 FORUM POST',bg:'rgba(251,191,36,.12)',col:'#fbbf24'}
+    :{txt:'📝 ASSIGNMENT',bg:'rgba(99,179,237,.12)',col:'#63b3ed'};
+}
+
+function cardHtml(e){
+  const col=C[e.course],cdown=cdObj(e.due),past=isPast(e.due),tl=tLabel(e.type);
+  const near=!past&&cdown.days>=0&&cdown.days<=6;
+  return `<div class="ecard${past?' past':''}${near?' near':''}">
+    <div class="bar" style="background:${col}"></div>
+    <div class="ct">
+      <div class="ctitle">${e.icon} ${e.title}</div>
+      <div class="badges">
+        <div class="badge" style="color:${col};border-color:${col}">${LBL[e.course]}</div>
+        <div class="tbadge" style="color:${tl.col};border-color:${tl.col};background:${tl.bg}">${tl.txt}</div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="mtag hi" style="color:${col}">⚖️ ${e.weight}</span>
+      <span class="mtag">📄 ${e.detail}</span>
+      <span class="mtag" style="color:${col}">📚 ${NM[e.course]}</span>
+    </div>
+    <div class="due-box" style="border-color:${col};background:${col}12">
+      <div><div class="due-lbl" style="color:${col}">📅 Due Date</div>
+      <div class="due-date" style="color:${col}">${fD(e.due)} &nbsp;·&nbsp; ${fT(e.due)}</div></div>
+    </div>
+    ${e.note?`<div class="note">${e.note}</div>`:''}
+    <span class="pill ${cdown.c}">${cdown.t}</span>
+  </div>`;
+}
+
+function render(){
+  const now=new Date();
+  // Alert banner
+  const urgent=DATA.filter(e=>!isPast(e.due)&&cdObj(e.due).days<=6&&cdObj(e.due).days>=0&&vis(e));
+  const banner=document.getElementById('alert-banner');
+  banner.style.display=urgent.length?'block':'none';
+  document.getElementById('alert-items').innerHTML=urgent.map(e=>{
+    const cd=cdObj(e.due);
+    return `<div class="al-row"><div><div class="al-name">${e.icon} ${e.title}</div><div class="al-sub">${LBL[e.course]} · ${NM[e.course]} · Due ${fD(e.due)} ${fT(e.due)}</div></div><div class="al-cd">${cd.t}</div></div>`;
+  }).join('');
+
+  // Lists
+  const all=DATA.filter(vis);
+  document.getElementById('list-all').innerHTML=all.length?all.map(cardHtml).join(''):'<div class="empty">NOTHING TO SHOW</div>';
+  const forums=DATA.filter(e=>e.type==='forum'&&vis(e));
+  document.getElementById('list-forum').innerHTML=forums.length?forums.map(cardHtml).join(''):'<div class="empty">NO FORUM POSTS</div>';
+  const assigns=DATA.filter(e=>e.type==='assignment'&&vis(e));
+  document.getElementById('list-assignment').innerHTML=assigns.length?assigns.map(cardHtml).join(''):'<div class="empty">NO ASSIGNMENTS</div>';
+
+  // Week
+  const ws=new Date(now);ws.setDate(now.getDate()-now.getDay());ws.setHours(0,0,0,0);
+  const we=new Date(ws);we.setDate(ws.getDate()+7);
+  const wI=DATA.filter(e=>e.due>=ws&&e.due<we&&vis(e));
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  document.getElementById('wgrid').innerHTML=Array.from({length:7},(_,i)=>{
+    const d=new Date(ws);d.setDate(ws.getDate()+i);
+    const isT=d.toDateString()===now.toDateString();
+    const dots=wI.filter(e=>e.due.getDay()===i).map(e=>`<div class="wdot" style="background:${C[e.course]}"></div>`).join('');
+    return `<div class="wday${isT?' today':''}"><div class="wdn">${days[i]}</div><div class="wdd">${d.getDate()}</div>${dots}</div>`;
+  }).join('');
+  document.getElementById('list-week').innerHTML=wI.length?wI.map(cardHtml).join(''):'<div class="empty">NOTHING DUE THIS WEEK 🎉</div>';
+
+  // Next 30
+  const u=new Date(now);u.setDate(now.getDate()+30);
+  const uI=DATA.filter(e=>e.due>=now&&e.due<=u&&vis(e));
+  document.getElementById('list-soon').innerHTML=uI.length?uI.map(cardHtml).join(''):'<div class="empty">NOTHING IN NEXT 30 DAYS 🎉</div>';
+
+  // Stats
+  const rem=DATA.filter(e=>!isPast(e.due)),nxt=rem[0];
+  document.getElementById('sU').textContent=DATA.filter(e=>!isPast(e.due)&&cdObj(e.due).days<=6&&cdObj(e.due).days>=0).length;
+  document.getElementById('sR').textContent=rem.length;
+  document.getElementById('sC').textContent=DATA.filter(e=>isPast(e.due)).length;
+  document.getElementById('sN').textContent=nxt?Math.ceil((nxt.due-Date.now())/86400000):'-';
+}
+
+function switchType(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.ttab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function tick(){
+  const n=new Date();
+  document.getElementById('ct').textContent=n.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Australia/Sydney'});
+  document.getElementById('cd').textContent=n.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Australia/Sydney'}).toUpperCase();
+}
+
+// ── INIT ──
+loadState();
+updatePermUI();
+render();
+renderLog();
+tick();
+setInterval(tick,1000);
+setInterval(render,60000);
+setInterval(checkReminders,60000);
+checkReminders();
+</script>
+</body>
+</html>
